@@ -3,15 +3,7 @@
 
 #include <stdio.h>
 
-struct student_marks
-{
-  int key;                // key is the index
-  char student_index[13]; // EG/XXXX/XXXX
-  float assgnmt01_marks;  // 15%
-  float assgnmt02_marks;  // 15%
-  float project_marks;    // 20%
-  float finalExam_marks;  // 50%
-};
+#include "student.h"
 
 /**
  * @brief stdout the student details
