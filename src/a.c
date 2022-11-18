@@ -69,6 +69,17 @@ int handleInsert()
 
 int handleSearch()
 {
-  printf("Search");
+  struct student_marks *student;
+  printf("Enter student index number: ");
+  scanf("%s", student->student_index);
+
+  if (db_search(student, NULL) != 0)
+  {
+    // student not found
+    exit(EXIT_FAILURE);
+  }
+
+  print_student(student);
+
   return 0;
 }
