@@ -13,6 +13,14 @@
 void print_student(struct student_marks *student);
 
 /**
+ * @brief edit a record in database
+ *
+ * @param student student_marks struct with the student index
+ * @return int 0 if success, -1 if not found
+ */
+int db_edit(struct student_marks *student);
+
+/**
  * @brief insert a student record into the database
  *
  * @param student

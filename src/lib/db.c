@@ -24,12 +24,37 @@ void db_initialize()
   }
 }
 
-void db_insert(struct student_marks *student)
+void initiate_fd(FILE *fd)
 {
-  printf("Inserting\n");
+  fd = fopen("data.csv", "r+");
 
   if (fd == NULL)
-    db_initialize();
+  {
+    printf("Failed to initialize database. Error: %d", errno);
+    perror("data.csv");
+    exit(EXIT_FAILURE);
+  }
+}
+
+int db_edit(struct student_marks *student)
+{
+  printf("Editing \n");
+
+  int *position;
+  if (db_search(student, position) != 0)
+  {
+    printf("Student not found \n");
+    return -1;
+  }
+
+  printf("came here \n");
+
+  FILE *fd;
+  initiate_fd(fd);
+
+  printf("Student found \n");
+
+  fseek(fd, *position, SEEK_SET);
 
   fprintf(fd, "%s,%.2f,%.2f,%.2f,%.2f\n",
           student->student_index,
@@ -37,6 +62,25 @@ void db_insert(struct student_marks *student)
           student->assgnmt02_marks,
           student->project_marks,
           student->finalExam_marks);
+
+  fclose(fd);
+}
+
+void db_insert(struct student_marks *student)
+{
+  printf("Inserting\n");
+
+  FILE *fd;
+  initiate_fd(fd);
+
+  fprintf(fd, "%s,%.2f,%.2f,%.2f,%.2f\n",
+          student->student_index,
+          student->assgnmt01_marks,
+          student->assgnmt02_marks,
+          student->project_marks,
+          student->finalExam_marks);
+
+  fclose(fd);
 }
 
 int db_search(struct student_marks *student, int *position)
@@ -47,8 +91,8 @@ int db_search(struct student_marks *student, int *position)
 
   printf("Searching %s... ", student->student_index);
 
-  if (fd == NULL)
-    db_initialize();
+  FILE *fd;
+  initiate_fd(fd);
 
   char line[1024];
   char *token;
@@ -76,9 +120,13 @@ int db_search(struct student_marks *student, int *position)
       if (position != NULL)
         *position = ftell(fd);
 
+      fclose(fd);
+
       return 0;
     }
   }
+
+  fclose(fd);
 
   printf(" not found!\n");
 
