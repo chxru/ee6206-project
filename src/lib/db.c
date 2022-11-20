@@ -4,32 +4,18 @@
 
 #include "db.h"
 
-FILE *fd;
-
-/**
- * @brief Initialize the file descriptors
- *
- */
-void db_initialize()
+void db_insert(struct student_marks *student)
 {
-  printf("Initializing database \n");
+  printf("Inserting\n");
 
+  FILE *fd;
   fd = fopen("data.csv", "a+");
-
   if (fd == NULL)
   {
     printf("Failed to initialize database. Error: %d", errno);
     perror("data.csv");
     exit(EXIT_FAILURE);
   }
-}
-
-void db_insert(struct student_marks *student)
-{
-  printf("Inserting\n");
-
-  if (fd == NULL)
-    db_initialize();
 
   fprintf(fd, "%s,%.2f,%.2f,%.2f,%.2f\n",
           student->student_index,
@@ -37,18 +23,27 @@ void db_insert(struct student_marks *student)
           student->assgnmt02_marks,
           student->project_marks,
           student->finalExam_marks);
+
+  if (fclose(fd) != 0)
+  {
+    printf("Failed to close database. Error: %d", errno);
+    perror("data.csv");
+    exit(EXIT_FAILURE);
+  }
 }
 
 int db_search(struct student_marks *student, int *position)
 {
-  // skip search if student index is empty
-  if (student->student_index == NULL)
-    return -1;
-
   printf("Searching %s... ", student->student_index);
 
+  FILE *fd;
+  fd = fopen("data.csv", "a+");
   if (fd == NULL)
-    db_initialize();
+  {
+    printf("Failed to initialize database. Error: %d", errno);
+    perror("data.csv");
+    exit(EXIT_FAILURE);
+  }
 
   char line[1024];
   char *token;
@@ -76,11 +71,25 @@ int db_search(struct student_marks *student, int *position)
       if (position != NULL)
         *position = ftell(fd);
 
+      if (fclose(fd) != 0)
+      {
+        printf("Failed to close database. Error: %d", errno);
+        perror("data.csv");
+        exit(EXIT_FAILURE);
+      }
+
       return 0;
     }
   }
 
   printf(" not found!\n");
+
+  if (fclose(fd) != 0)
+  {
+    printf("Failed to close database. Error: %d", errno);
+    perror("data.csv");
+    exit(EXIT_FAILURE);
+  }
 
   return -1;
 }
