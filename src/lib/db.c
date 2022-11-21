@@ -22,7 +22,6 @@ void db_edit(struct student_marks *student)
   while (fgets(line, 1024, fd))
   {
     index = strtok(line, ",");
-    printf("%d index: %s \n", position, index);
 
     if (strcmp(index, student->student_index) == 0)
     {
@@ -113,7 +112,7 @@ void db_insert(struct student_marks *student)
     exit(EXIT_FAILURE);
   }
 
-	printf("Student record inserted successfully \n");
+  printf("Student record inserted successfully \n");
 }
 
 int db_search(struct student_marks *student)
@@ -151,7 +150,6 @@ int db_search(struct student_marks *student)
       student->project_marks = atof(token);
       token = strtok(NULL, ",");
       student->finalExam_marks = atof(token);
-
 
       if (fclose(fd) == EOF)
       {
