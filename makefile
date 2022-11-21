@@ -1,3 +1,6 @@
+log: compile
+	./a.out b > run.log
+
 run: compile
 	./a.out
 
