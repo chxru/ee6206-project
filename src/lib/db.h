@@ -6,11 +6,11 @@
 #include "student.h"
 
 /**
- * @brief stdout the student details
+ * @brief edit a student in the database
  *
  * @param student
  */
-void print_student(struct student_marks *student);
+void db_edit(struct student_marks *student);
 
 /**
  * @brief insert a student record into the database

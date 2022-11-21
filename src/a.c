@@ -36,7 +36,24 @@ void handlePartA()
 
 int handleEdit()
 {
-  printf("Edit");
+	struct student_marks *students = (struct student_marks *) malloc(sizeof (struct student_marks));
+
+	printf("Enter student index: ");
+	scanf("%s", students->student_index);
+
+	printf("Enter assignment 01 marks: ");
+	scanf("%f", &students->assgnmt01_marks);
+
+	printf("Enter assignment 02 marks: ");
+	scanf("%f", &students->assgnmt02_marks);
+
+	printf("Enter project marks: ");
+	scanf("%f", &students->project_marks);
+
+	printf("Enter final exam marks: ");
+	scanf("%f", &students->finalExam_marks);
+
+	db_edit(students);
 
   return 0;
 }
