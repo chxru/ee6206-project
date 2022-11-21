@@ -17,7 +17,7 @@ void db_insert(struct student_marks *student)
     exit(EXIT_FAILURE);
   }
 
-  fprintf(fd, "%s,%.2f,%.2f,%.2f,%.2f\n",
+  fprintf(fd, "%s,%05.2f,%05.2f,%05.2f,%05.2f\n",
           student->student_index,
           student->assgnmt01_marks,
           student->assgnmt02_marks,
