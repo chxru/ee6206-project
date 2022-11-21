@@ -23,9 +23,8 @@ void db_insert(struct student_marks *student);
  * @brief search for a student record in the database
  *
  * @param student pointer to the found student_marks struct
- * @param position fd position of the found student_marks struct
  * @return int 0 if found, -1 if not found
  */
-int db_search(struct student_marks *student, int *position);
+int db_search(struct student_marks *student);
 
 #endif

@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 
 #include "b.h"
 
@@ -46,7 +45,7 @@ void analyze(int start, int end, int forkedId)
 	for (int i = start; i <= end; i++)
 	{
 		// print the student details
-		printf("%d: From %d student %s with ", i, pid, marks_array[i].student_index);
+		printf("Process id %d: \t From %d student %s with ", i, pid, marks_array[i].student_index);
 
 		// ignore empty lines
 		if (marks_array[i].student_index[0] == '\0')
@@ -71,21 +70,29 @@ void analyze(int start, int end, int forkedId)
 	// response
 	struct pipe_res res = {passed, failed, pid, start, end};
 
+	int write_res;
 	if (forkedId == FORK_C1)
 	{
-		write(fd_c1[1], &res, sizeof(res));
+		write_res = write(fd_c1[1], &res, sizeof(res));
 	}
 	else if (forkedId == FORK_C2)
 	{
-		write(fd_c2[1], &res, sizeof(res));
+		write_res = write(fd_c2[1], &res, sizeof(res));
 	}
 	else if (forkedId == FORK_CC1)
 	{
-		write(fd_cc1[1], &res, sizeof(res));
+		write_res = write(fd_cc1[1], &res, sizeof(res));
 	}
 	else if (forkedId == FORK_CC2)
 	{
-		write(fd_cc2[1], &res, sizeof(res));
+		write_res = write(fd_cc2[1], &res, sizeof(res));
+	}
+
+	if (write_res == -1)
+	{
+		perror("write");
+		printf("Error writing to pipe\n");
+		exit(EXIT_FAILURE);
 	}
 
 	exit(0);
@@ -93,8 +100,6 @@ void analyze(int start, int end, int forkedId)
 
 void tier1_child(int start, int end, int forkId)
 {
-	printf("fork:  tier1_child %d from %d to %d\n", forkId, start, end);
-
 	// create sub child processes
 	pid_t pid_ccx = fork();
 
@@ -171,8 +176,20 @@ void handlePartB()
 		count++;
 	}
 
+	// if the file is empty
+	if (count == 0)
+	{
+		printf("data.csv is empty");
+		exit(1);
+	}
+
 	// close the file
-	fclose(fp);
+	if (fclose(fp) == EOF)
+	{
+		perror("data.csv");
+		printf("Error closing file data.csv. %d", errno);
+		exit(1);
+	}
 
 	// resize the array to the actual size
 	marks_array = realloc(marks_array, count * sizeof *marks_array);
@@ -216,21 +233,45 @@ void handlePartB()
 
 	// read the results from the pipes
 	struct pipe_res res_c1, res_c2, res_cc1, res_cc2;
-	read(fd_c1[0], &res_c1, sizeof(res_c1));
-	read(fd_c2[0], &res_c2, sizeof(res_c2));
-	read(fd_cc1[0], &res_cc1, sizeof(res_cc1));
-	read(fd_cc2[0], &res_cc2, sizeof(res_cc2));
+
+	if (read(fd_c1[0], &res_c1, sizeof(res_c1)) == -1)
+	{
+		perror("read");
+		printf("Error reading from pipe 1. %d", errno);
+		exit(1);
+	}
+
+	if (read(fd_c2[0], &res_c2, sizeof(res_c2)) == -1)
+	{
+		perror("read");
+		printf("Error reading from pipe 2. %d", errno);
+		exit(1);
+	}
+
+	if (read(fd_cc1[0], &res_cc1, sizeof(res_cc1)) == -1)
+	{
+		perror("read");
+		printf("Error reading from pipe 3. %d", errno);
+		exit(1);
+	}
+
+	if (read(fd_cc2[0], &res_cc2, sizeof(res_cc2)) == -1)
+	{
+		perror("read");
+		printf("Error reading from pipe 4. %d", errno);
+		exit(1);
+	}
 
 	// print the results
-	printf("c1: %d passed, %d failed, pid %d, start %d, end %d \n", res_c1.passed, res_c1.failed, res_c1.pid, res_c1.start, res_c1.end);
-	printf("c2: %d passed, %d failed, pid %d, start %d, end %d \n", res_c2.passed, res_c2.failed, res_c2.pid, res_c2.start, res_c2.end);
-	printf("cc1: %d passed, %d failed, pid %d, start %d, end %d \n", res_cc1.passed, res_cc1.failed, res_cc1.pid, res_cc1.start, res_cc1.end);
-	printf("cc2: %d passed, %d failed, pid %d, start %d, end %d \n", res_cc2.passed, res_cc2.failed, res_cc2.pid, res_cc2.start, res_cc2.end);
+	printf("result c1: \t %d passed, %d failed, pid %d, start %d, end %d \n", res_c1.passed, res_c1.failed, res_c1.pid, res_c1.start, res_c1.end);
+	printf("result c2: \t %d passed, %d failed, pid %d, start %d, end %d \n", res_c2.passed, res_c2.failed, res_c2.pid, res_c2.start, res_c2.end);
+	printf("result cc1: \t %d passed, %d failed, pid %d, start %d, end %d \n", res_cc1.passed, res_cc1.failed, res_cc1.pid, res_cc1.start, res_cc1.end);
+	printf("result cc2: \t %d passed, %d failed, pid %d, start %d, end %d \n", res_cc2.passed, res_cc2.failed, res_cc2.pid, res_cc2.start, res_cc2.end);
 
 	int passed = res_c1.passed + res_c2.passed + res_cc1.passed + res_cc2.passed;
 	int failed = res_c1.failed + res_c2.failed + res_cc1.failed + res_cc2.failed;
 
-	printf("Total passed: %d, Total failed: %d \n", passed, failed);
+	printf("\n\n Total passed: %d,\n Total failed: %d \n", passed, failed);
 
 	// release the memory
 	free(marks_array);

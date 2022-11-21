@@ -91,7 +91,7 @@ int handleSearch()
   printf("Enter student index number: ");
   scanf("%s", student->student_index);
 
-  if (db_search(student, NULL) != 0)
+  if (db_search(student) != 0)
   {
     printf("Cannot find student %s \n", student->student_index);
     // student not found
